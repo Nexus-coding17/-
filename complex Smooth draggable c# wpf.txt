@@ -1,0 +1,68 @@
+
+namespace Nexus
+{
+    public partial class MainWindow : Window
+    {
+        private bool isDragging;
+        private Point startPoint;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+--------------------------------------------------------------------------------------
+
+private void Rectangle_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                Point currentPoint = e.GetPosition(this);
+
+                // Calculate the distance moved
+                double deltaX = currentPoint.X - startPoint.X;
+                double deltaY = currentPoint.Y - startPoint.Y;
+
+                // Increase the frame rate for smoother animation
+                const int framesPerSecond = 240;
+                const int animationDurationMillis = 500; // Adjust duration as needed
+                int numFrames = framesPerSecond * animationDurationMillis / 1025;
+
+                // Create easing functions for smoother animation
+                CubicEase ease = new CubicEase();
+                ease.EasingMode = EasingMode.EaseOut; // Use EaseOut for a smooth deceleration
+
+                // Update the position using an animation with custom easing
+                DoubleAnimation animationX = new DoubleAnimation();
+                animationX.From = Left;
+                animationX.To = Left + deltaX;
+                animationX.Duration = TimeSpan.FromMilliseconds(animationDurationMillis); // Adjust duration as needed
+                animationX.EasingFunction = ease; // Apply easing function
+                animationX.AccelerationRatio = 0.5; // Increase acceleration for smoother start
+                animationX.DecelerationRatio = 0.5; // Increase deceleration for smoother end
+                animationX.RepeatBehavior = new RepeatBehavior(1); // Ensure animation runs only once
+                animationX.FillBehavior = FillBehavior.Stop; // Ensure animation stops at the final value
+                BeginAnimation(Window.LeftProperty, animationX);
+
+                DoubleAnimation animationY = new DoubleAnimation();
+                animationY.From = Top;
+                animationY.To = Top + deltaY;
+                animationY.Duration = TimeSpan.FromMilliseconds(animationDurationMillis); // Adjust duration as needed
+                animationY.EasingFunction = ease; // Apply easing function
+                animationY.AccelerationRatio = 0.5; // Increase acceleration for smoother start
+                animationY.DecelerationRatio = 0.5; // Increase deceleration for smoother end
+                animationY.RepeatBehavior = new RepeatBehavior(1); // Ensure animation runs only once
+                animationY.FillBehavior = FillBehavior.Stop; // Ensure animation stops at the final value
+                BeginAnimation(Window.TopProperty, animationY);
+
+                startPoint = currentPoint;
+            }
+        }
+
+--------------------------------------------------------------------------------------
+
+private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
